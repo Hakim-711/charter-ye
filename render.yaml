@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: charter-admin-api
+    env: node
+    rootDir: backend
+    autoDeploy: true
+    buildCommand: npm install && npm run prisma:generate
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    disk:
+      name: charter-sqlite-data
+      mountPath: /opt/render/project/src/backend/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/opt/render/project/src/backend/data/prod.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: AUTH_MAX_FAILED_ATTEMPTS
+        value: 5
+      - key: AUTH_LOCKOUT_MINUTES
+        value: 10
+      - key: ADMIN_DEFAULT_USERNAME
+        value: admin
+      - key: ADMIN_DEFAULT_PASSWORD
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://charter-ye.netlify.app

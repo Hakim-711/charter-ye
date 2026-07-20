@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id             String   @id @default(cuid())
+  username       String   @unique
+  passwordHash   String
+  fullName       String?
+  isActive       Boolean  @default(true)
+  failedAttempts Int      @default(0)
+  lockoutUntil   DateTime?
+  lastLoginAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SiteSettings {
+  id                Int      @id @default(1)
+  companyNameAr     String?
+  companyNameEn     String?
+  companySubtitleAr String?
+  companySubtitleEn String?
+  heroTitleAr       String?
+  heroTitleEn       String?
+  heroDescriptionAr String?
+  heroDescriptionEn String?
+  officePhoneRaw    String?
+  whatsappRaw       String?
+  email             String?
+  secondaryEmail    String?
+  websiteUrl        String?
+  maribAddressAr    String?
+  maribAddressEn    String?
+  adenAddressAr     String?
+  adenAddressEn     String?
+  coverageAr        String?
+  coverageEn        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  company   String?
+  service   String
+  message   String
+  status    String     @default("newLead")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}

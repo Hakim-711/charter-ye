@@ -1,0 +1,19 @@
+[build]
+  command = "bash tool/netlify_build.sh"
+  publish = "build/web"
+
+[build.environment]
+  FLUTTER_VERSION = "3.35.6"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
