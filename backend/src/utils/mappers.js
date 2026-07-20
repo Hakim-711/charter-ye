@@ -32,6 +32,8 @@ export function mapLead(lead) {
     createdAtIso: lead.createdAt.toISOString(),
     name: lead.name,
     company: lead.company ?? '',
+    phone: lead.phone ?? '',
+    email: lead.email ?? '',
     service: lead.service,
     message: lead.message,
     status: lead.status,

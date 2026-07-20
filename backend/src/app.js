@@ -12,6 +12,10 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 
 const app = express();
 
+if (env.nodeEnv === 'production') {
+  app.set('trust proxy', 1);
+}
+
 const corsOptions = {
   origin(origin, callback) {
     if (!origin || env.allowedOrigins.includes('*')) {
@@ -39,6 +43,17 @@ const publicLeadLimiter = rateLimit({
   },
 });
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    code: 'RATE_LIMITED',
+    message: 'Too many authentication attempts. Please try again later.',
+  },
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
@@ -48,6 +63,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/public/leads', publicLeadLimiter);
 app.use('/api/public', publicRoutes);
+app.use('/api/auth/login', authLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 

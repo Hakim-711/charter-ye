@@ -377,6 +377,8 @@ class _CharterAppState extends State<CharterApp> {
                                     key: _sectionKeys[LandingSection.contact],
                                     content: content,
                                     onSubmitLead: _appState.submitLead,
+                                    submissionEnabled:
+                                        AppRuntimeConfig.hasRemoteSync,
                                   ),
                                   FooterSection(content: content),
                                 ],

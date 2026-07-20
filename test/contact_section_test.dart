@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   Widget buildContact({
     required Future<void> Function(ContactLeadDraft lead) onSubmitLead,
+    bool submissionEnabled = true,
   }) {
     return MaterialApp(
       home: Scaffold(
@@ -15,6 +16,7 @@ void main() {
           child: ContactSection(
             content: AppContent.of(Language.ar),
             onSubmitLead: onSubmitLead,
+            submissionEnabled: submissionEnabled,
           ),
         ),
       ),
@@ -46,6 +48,14 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('contact_name')), 'أحمد');
     await tester.enterText(
+      find.byKey(const Key('contact_phone')),
+      '+967 774 863 677',
+    );
+    await tester.enterText(
+      find.byKey(const Key('contact_email_address')),
+      'ahmed@example.com',
+    );
+    await tester.enterText(
       find.byKey(const Key('contact_service')),
       'الخدمات اللوجستية',
     );
@@ -53,6 +63,9 @@ void main() {
       find.byKey(const Key('contact_message')),
       'نحتاج عرض سعر وتفاصيل نطاق العمل خلال هذا الأسبوع.',
     );
+    await tester.ensureVisible(find.byKey(const Key('contact_privacy')));
+    await tester.tap(find.byType(Checkbox));
+    await tester.pumpAndSettle();
 
     final submit = find.byKey(const Key('contact_submit'));
     await tester.ensureVisible(submit);
@@ -60,5 +73,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(submissions, 1);
+  });
+
+  testWidgets('disables online submission when backend is unavailable', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildContact(onSubmitLead: (_) async {}, submissionEnabled: false),
+    );
+
+    final button = tester.widget<ElevatedButton>(
+      find.byKey(const Key('contact_submit')),
+    );
+    expect(button.onPressed, isNull);
+    expect(find.textContaining('الإرسال الإلكتروني غير متاح'), findsOneWidget);
   });
 }

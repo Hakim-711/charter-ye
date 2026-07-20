@@ -299,8 +299,8 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
       case AdminSignInStatus.notConfigured:
         _showSnack(
           _isArabic
-              ? 'لوحة الإدارة غير مهيأة بعد. اضبط ADMIN_BOOTSTRAP_PASSCODE في إعدادات النشر.'
-              : 'Admin panel is not configured. Set ADMIN_BOOTSTRAP_PASSCODE at deployment.',
+              ? 'لوحة الإدارة غير مهيأة. اربط الموقع بخادم الإدارة عبر CHARTER_API_BASE_URL.'
+              : 'Admin panel is not configured. Connect the admin backend with CHARTER_API_BASE_URL.',
         );
         return;
     }
@@ -371,8 +371,8 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
           case AdminPasscodeUpdateStatus.notConfigured:
             _showSnack(
               _isArabic
-                  ? 'المصادقة غير مهيأة. تحقق من إعدادات ADMIN_BOOTSTRAP_PASSCODE.'
-                  : 'Auth is not configured. Check ADMIN_BOOTSTRAP_PASSCODE.',
+                  ? 'المصادقة غير مهيأة. تحقق من اتصال خادم الإدارة.'
+                  : 'Auth is not configured. Check the admin backend connection.',
             );
             return;
           case AdminPasscodeUpdateStatus.success:
@@ -1167,6 +1167,14 @@ class _LeadInboxBlock extends StatelessWidget {
                               lead.company.isEmpty
                                   ? (isArabic ? 'الجهة: -' : 'Company: -')
                                   : '${isArabic ? 'الجهة' : 'Company'}: ${lead.company}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Text(
+                              '${isArabic ? 'الهاتف' : 'Phone'}: ${lead.phone.isEmpty ? '-' : lead.phone}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Text(
+                              '${isArabic ? 'البريد' : 'Email'}: ${lead.email.isEmpty ? '-' : lead.email}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             Text(

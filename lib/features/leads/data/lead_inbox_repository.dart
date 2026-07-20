@@ -23,7 +23,7 @@ class LeadInboxRepositoryFactory {
   }) {
     final cache = SecureStorageLeadInboxRepository();
     if (!AppRuntimeConfig.hasRemoteSync) {
-      return cache;
+      return UnconfiguredLeadInboxRepository(cache: cache);
     }
     return RemoteLeadInboxRepository(
       baseUrl: AppRuntimeConfig.apiBaseUrl,
@@ -32,6 +32,37 @@ class LeadInboxRepositoryFactory {
       cache: cache,
       client: client,
     );
+  }
+}
+
+class LeadSubmissionException implements Exception {
+  const LeadSubmissionException(this.code, {this.statusCode});
+
+  final String code;
+  final int? statusCode;
+
+  @override
+  String toString() => 'LeadSubmissionException($code, $statusCode)';
+}
+
+class UnconfiguredLeadInboxRepository implements LeadInboxRepository {
+  const UnconfiguredLeadInboxRepository({required LeadInboxRepository cache})
+    : _cache = cache;
+
+  final LeadInboxRepository _cache;
+
+  @override
+  Future<List<ContactLead>> load() => _cache.load();
+
+  @override
+  Future<void> saveAll(List<ContactLead> leads) => _cache.saveAll(leads);
+
+  @override
+  Future<void> clear() => _cache.clear();
+
+  @override
+  Future<ContactLead> submitDraft(ContactLeadDraft draft) {
+    throw const LeadSubmissionException('api_not_configured');
   }
 }
 
@@ -93,6 +124,8 @@ class SecureStorageLeadInboxRepository implements LeadInboxRepository {
       createdAtIso: DateTime.now().toUtc().toIso8601String(),
       name: draft.name,
       company: draft.company,
+      phone: draft.phone,
+      email: draft.email,
       service: draft.service,
       message: draft.message,
       status: LeadStatus.newLead,
@@ -208,28 +241,38 @@ class RemoteLeadInboxRepository implements LeadInboxRepository {
 
   @override
   Future<ContactLead> submitDraft(ContactLeadDraft draft) async {
+    late final http.Response response;
     try {
-      final response = await _client.post(
+      response = await _client.post(
         _publicLeadsUri,
         headers: _jsonHeaders,
         body: jsonEncode({
           'name': draft.name,
           'company': draft.company,
+          'phone': draft.phone,
+          'email': draft.email,
           'service': draft.service,
           'message': draft.message,
+          'website': '',
         }),
       );
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final map = _extractDataMap(response.body);
-        final lead = ContactLead.fromJson(map);
-        return lead;
-      }
     } catch (_) {
-      // Fall back to local cache.
+      throw const LeadSubmissionException('network_unavailable');
     }
 
-    return _cache.submitDraft(draft);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw LeadSubmissionException(
+        response.statusCode == 429 ? 'rate_limited' : 'server_rejected',
+        statusCode: response.statusCode,
+      );
+    }
+
+    final map = _extractDataMap(response.body);
+    final lead = ContactLead.fromJson(map);
+    if (lead.id.isEmpty) {
+      throw const LeadSubmissionException('invalid_server_response');
+    }
+    return lead;
   }
 
   List<dynamic> _extractDataList(String rawBody) {

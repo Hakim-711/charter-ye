@@ -19,7 +19,12 @@ void main() {
       'Charter for General Services & Supplies',
     );
     expect(content.portfolioGroups, hasLength(4));
+    expect(content.deliveryShowcases, hasLength(6));
     expect(content.locations, hasLength(3));
+    expect(
+      content.locations.where((item) => item.mapUrl != null),
+      hasLength(2),
+    );
   });
 
   test('uses updated published contact defaults', () {

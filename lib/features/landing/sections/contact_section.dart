@@ -8,10 +8,16 @@ import '../domain/landing_models.dart';
 import '../widgets/shared_widgets.dart';
 
 class ContactSection extends StatelessWidget {
-  const ContactSection({super.key, required this.content, this.onSubmitLead});
+  const ContactSection({
+    super.key,
+    required this.content,
+    this.onSubmitLead,
+    this.submissionEnabled = true,
+  });
 
   final AppContent content;
   final Future<void> Function(ContactLeadDraft lead)? onSubmitLead;
+  final bool submissionEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +41,7 @@ class ContactSection extends StatelessWidget {
                 child: _ContactForm(
                   content: content,
                   onSubmitLead: onSubmitLead,
+                  submissionEnabled: submissionEnabled,
                 ),
               );
               final details = FadeSlideIn(
@@ -167,10 +174,15 @@ class _DetailCard extends StatelessWidget {
 }
 
 class _ContactForm extends StatefulWidget {
-  const _ContactForm({required this.content, this.onSubmitLead});
+  const _ContactForm({
+    required this.content,
+    required this.submissionEnabled,
+    this.onSubmitLead,
+  });
 
   final AppContent content;
   final Future<void> Function(ContactLeadDraft lead)? onSubmitLead;
+  final bool submissionEnabled;
 
   @override
   State<_ContactForm> createState() => _ContactFormState();
@@ -180,6 +192,8 @@ class _ContactFormState extends State<_ContactForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController = TextEditingController();
   late final TextEditingController _companyController = TextEditingController();
+  late final TextEditingController _phoneController = TextEditingController();
+  late final TextEditingController _emailController = TextEditingController();
   late final TextEditingController _serviceController = TextEditingController();
   late final TextEditingController _messageController = TextEditingController();
   late final TextEditingController _honeypotController =
@@ -187,6 +201,7 @@ class _ContactFormState extends State<_ContactForm> {
 
   DateTime? _lastSubmittedAt;
   bool _isSubmitting = false;
+  bool _privacyAccepted = false;
 
   AppContent get content => widget.content;
 
@@ -194,10 +209,36 @@ class _ContactFormState extends State<_ContactForm> {
   void dispose() {
     _nameController.dispose();
     _companyController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
     _serviceController.dispose();
     _messageController.dispose();
     _honeypotController.dispose();
     super.dispose();
+  }
+
+  String? _validatePhone(String? value) {
+    final phone = value?.trim() ?? '';
+    if (phone.isEmpty) {
+      return content.formValidationRequired.of(content.language);
+    }
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length < 7 || digits.length > 15) {
+      return content.formValidationPhone.of(content.language);
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    final email = value?.trim() ?? '';
+    if (email.isEmpty) {
+      return content.formValidationRequired.of(content.language);
+    }
+    final valid = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email);
+    if (!valid || email.length > 180) {
+      return content.formValidationEmail.of(content.language);
+    }
+    return null;
   }
 
   String? _requiredMin(String? value, {required int minLength}) {
@@ -237,15 +278,19 @@ class _ContactFormState extends State<_ContactForm> {
     final lead = ContactLeadDraft(
       name: _nameController.text.trim(),
       company: _companyController.text.trim(),
+      phone: _phoneController.text.trim(),
+      email: _emailController.text.trim().toLowerCase(),
       service: _serviceController.text.trim(),
       message: _messageController.text.trim(),
     );
 
     setState(() => _isSubmitting = true);
     try {
-      if (widget.onSubmitLead != null) {
-        await widget.onSubmitLead!(lead);
+      final submit = widget.onSubmitLead;
+      if (submit == null) {
+        throw StateError('No lead submission handler is configured.');
       }
+      await submit(lead);
     } catch (_) {
       if (!mounted) {
         return;
@@ -263,6 +308,8 @@ class _ContactFormState extends State<_ContactForm> {
     _lastSubmittedAt = DateTime.now();
     _nameController.clear();
     _companyController.clear();
+    _phoneController.clear();
+    _emailController.clear();
     _serviceController.clear();
     _messageController.clear();
     setState(() => _isSubmitting = false);
@@ -274,6 +321,8 @@ class _ContactFormState extends State<_ContactForm> {
   Future<void> _openEmailComposer() async {
     final name = _nameController.text.trim();
     final company = _companyController.text.trim();
+    final phone = _phoneController.text.trim();
+    final email = _emailController.text.trim();
     final service = _serviceController.text.trim();
     final message = _messageController.text.trim();
 
@@ -285,6 +334,8 @@ class _ContactFormState extends State<_ContactForm> {
         ? '''
 الاسم: ${name.isEmpty ? '-' : name}
 الجهة / الشركة: ${company.isEmpty ? '-' : company}
+رقم الهاتف: ${phone.isEmpty ? '-' : phone}
+البريد الإلكتروني: ${email.isEmpty ? '-' : email}
 الخدمة المطلوبة: ${service.isEmpty ? '-' : service}
 تفاصيل الطلب:
 ${message.isEmpty ? '-' : message}
@@ -292,6 +343,8 @@ ${message.isEmpty ? '-' : message}
         : '''
 Name: ${name.isEmpty ? '-' : name}
 Organization / Company: ${company.isEmpty ? '-' : company}
+Phone: ${phone.isEmpty ? '-' : phone}
+Email: ${email.isEmpty ? '-' : email}
 Requested Service: ${service.isEmpty ? '-' : service}
 Request Details:
 ${message.isEmpty ? '-' : message}
@@ -316,6 +369,13 @@ ${message.isEmpty ? '-' : message}
     }
   }
 
+  Future<void> _openPrivacyPolicy() async {
+    await launchUrl(
+      Uri.base.resolve('privacy.html'),
+      mode: LaunchMode.platformDefault,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SurfaceCard(
@@ -331,6 +391,21 @@ ${message.isEmpty ? '-' : message}
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
             ),
+            if (!widget.submissionEnabled) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.gold.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  content.formServiceUnavailable.of(content.language),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ],
             const SizedBox(height: 14),
             Offstage(
               offstage: true,
@@ -347,6 +422,30 @@ ${message.isEmpty ? '-' : message}
               decoration: InputDecoration(
                 hintText: content.formHintName.of(content.language),
                 prefixIcon: const Icon(Icons.person_outline_rounded),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextFormField(
+              key: const Key('contact_phone'),
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              validator: _validatePhone,
+              autofillHints: const [AutofillHints.telephoneNumber],
+              decoration: InputDecoration(
+                hintText: content.formHintPhone.of(content.language),
+                prefixIcon: const Icon(Icons.phone_outlined),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextFormField(
+              key: const Key('contact_email_address'),
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              validator: _validateEmail,
+              autofillHints: const [AutofillHints.email],
+              decoration: InputDecoration(
+                hintText: content.formHintEmail.of(content.language),
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
             ),
             const SizedBox(height: 10),
@@ -387,12 +486,60 @@ ${message.isEmpty ? '-' : message}
               ),
             ),
             const SizedBox(height: 14),
+            FormField<bool>(
+              initialValue: _privacyAccepted,
+              validator: (_) => _privacyAccepted
+                  ? null
+                  : content.privacyRequired.of(content.language),
+              builder: (field) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CheckboxListTile(
+                    key: const Key('contact_privacy'),
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: _privacyAccepted,
+                    onChanged: (value) {
+                      setState(() => _privacyAccepted = value ?? false);
+                      field.didChange(_privacyAccepted);
+                    },
+                    title: Text(
+                      content.privacyConsent.of(content.language),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    subtitle: TextButton(
+                      onPressed: _openPrivacyPolicy,
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        alignment: AlignmentDirectional.centerStart,
+                      ),
+                      child: Text(
+                        content.isArabic
+                            ? 'قراءة سياسة الخصوصية'
+                            : 'Read privacy policy',
+                      ),
+                    ),
+                  ),
+                  if (field.hasError)
+                    Text(
+                      field.errorText!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 12,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     key: const Key('contact_submit'),
-                    onPressed: _isSubmitting ? null : _submitLead,
+                    onPressed: _isSubmitting || !widget.submissionEnabled
+                        ? null
+                        : _submitLead,
                     child: Text(content.formSubmit.of(content.language)),
                   ),
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../data/app_content.dart';
@@ -58,6 +59,26 @@ class FooterSection extends StatelessWidget {
                   label: content.isArabic
                       ? 'مقاولات وبنية تحتية'
                       : 'Contracting & Infrastructure',
+                ),
+                TextButton(
+                  onPressed: () => launchUrl(
+                    Uri.base.resolve('privacy.html'),
+                    mode: LaunchMode.platformDefault,
+                  ),
+                  child: Text(
+                    content.isArabic ? 'سياسة الخصوصية' : 'Privacy Policy',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => launchUrl(
+                    Uri.base.resolve('terms.html'),
+                    mode: LaunchMode.platformDefault,
+                  ),
+                  child: Text(
+                    content.isArabic ? 'شروط الاستخدام' : 'Terms of Use',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 ),
                 _FooterBadge(
                   label: content.isArabic

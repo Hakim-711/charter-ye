@@ -66,16 +66,32 @@ class PortfolioGroup {
   final List<BilingualText> items;
 }
 
+class DeliveryShowcase {
+  const DeliveryShowcase({
+    required this.title,
+    required this.summary,
+    required this.icon,
+    required this.tags,
+  });
+
+  final BilingualText title;
+  final BilingualText summary;
+  final IconData icon;
+  final List<BilingualText> tags;
+}
+
 class LocationItem {
   const LocationItem({
     required this.title,
     required this.address,
     required this.icon,
+    this.mapUrl,
   });
 
   final BilingualText title;
   final BilingualText address;
   final IconData icon;
+  final String? mapUrl;
 }
 
 class HighlightPoint {

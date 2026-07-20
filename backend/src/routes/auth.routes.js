@@ -25,6 +25,7 @@ function signToken(adminUser) {
       {
         sub: adminUser.id,
         username: adminUser.username,
+        tokenVersion: adminUser.tokenVersion,
       },
       env.jwtSecret,
       { expiresIn: env.jwtExpiresIn },
@@ -198,6 +199,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
     where: { id: user.id },
     data: {
       passwordHash: nextHash,
+      tokenVersion: { increment: 1 },
       failedAttempts: 0,
       lockoutUntil: null,
     },
@@ -209,6 +211,13 @@ router.post('/change-password', requireAuth, async (req, res) => {
 });
 
 router.post('/logout', requireAuth, async (req, res) => {
+  const userId = req.auth?.sub;
+  if (userId) {
+    await prisma.adminUser.updateMany({
+      where: { id: userId, isActive: true },
+      data: { tokenVersion: { increment: 1 } },
+    });
+  }
   return res.status(200).json({
     data: { loggedOut: true },
   });

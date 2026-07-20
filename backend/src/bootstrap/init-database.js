@@ -16,6 +16,7 @@ const schemaStatements = [
       "isActive" BOOLEAN NOT NULL DEFAULT 1,
       "failedAttempts" INTEGER NOT NULL DEFAULT 0,
       "lockoutUntil" DATETIME,
+      "tokenVersion" INTEGER NOT NULL DEFAULT 0,
       "lastLoginAt" DATETIME,
       "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -53,6 +54,8 @@ const schemaStatements = [
       "id" TEXT NOT NULL PRIMARY KEY,
       "name" TEXT NOT NULL,
       "company" TEXT,
+      "phone" TEXT NOT NULL DEFAULT '',
+      "email" TEXT NOT NULL DEFAULT '',
       "service" TEXT NOT NULL,
       "message" TEXT NOT NULL,
       "status" TEXT NOT NULL DEFAULT 'newLead',
@@ -82,6 +85,33 @@ async function ensureSiteSettingsColumns() {
     if (!existing.has(column)) {
       await prisma.$executeRawUnsafe(
           `ALTER TABLE "SiteSettings" ADD COLUMN "${column}" ${type};`,
+      );
+    }
+  }
+}
+
+async function ensureAdminUserColumns() {
+  const columns = await prisma.$queryRawUnsafe('PRAGMA table_info("AdminUser");');
+  const existing = new Set(columns.map((column) => column.name));
+  if (!existing.has('tokenVersion')) {
+    await prisma.$executeRawUnsafe(
+        'ALTER TABLE "AdminUser" ADD COLUMN "tokenVersion" INTEGER NOT NULL DEFAULT 0;',
+    );
+  }
+}
+
+async function ensureLeadColumns() {
+  const columns = await prisma.$queryRawUnsafe('PRAGMA table_info("Lead");');
+  const existing = new Set(columns.map((column) => column.name));
+  const requiredColumns = [
+    ['phone', "TEXT NOT NULL DEFAULT ''"],
+    ['email', "TEXT NOT NULL DEFAULT ''"],
+  ];
+
+  for (const [column, type] of requiredColumns) {
+    if (!existing.has(column)) {
+      await prisma.$executeRawUnsafe(
+          `ALTER TABLE "Lead" ADD COLUMN "${column}" ${type};`,
       );
     }
   }
@@ -165,6 +195,7 @@ async function ensureDefaultAdmin({ resetPassword }) {
         isActive: true,
         failedAttempts: 0,
         lockoutUntil: null,
+        tokenVersion: { increment: 1 },
       },
     });
     console.log(`Default admin password reset: ${username}`);
@@ -174,7 +205,9 @@ async function ensureDefaultAdmin({ resetPassword }) {
 export async function initializeDatabase({ resetDefaultAdminPassword = false } = {}) {
   await ensureSqliteDirectory();
   await ensureSchema();
+  await ensureAdminUserColumns();
   await ensureSiteSettingsColumns();
+  await ensureLeadColumns();
   await ensureDefaultRows();
   await ensureDefaultAdmin({ resetPassword: resetDefaultAdminPassword });
 }

@@ -2,11 +2,14 @@ import { app } from './app.js';
 import { initializeDatabase } from './bootstrap/init-database.js';
 import { env } from './config/env.js';
 import { prisma } from './config/prisma.js';
+import { startBackupScheduler } from './services/database-backup.js';
 
 let server;
+let stopBackupScheduler = () => {};
 
 async function shutdown(signal) {
   console.log(`Received ${signal}. Shutting down gracefully...`);
+  stopBackupScheduler();
   if (!server) {
     await prisma.$disconnect();
     process.exit(0);
@@ -28,6 +31,7 @@ async function start() {
     server = app.listen(env.port, () => {
       console.log(`Charter backend listening on http://localhost:${env.port}`);
     });
+    stopBackupScheduler = startBackupScheduler();
   } catch (error) {
     console.error('Failed to start backend:', error);
     await prisma.$disconnect();

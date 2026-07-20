@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../data/app_content.dart';
+import '../domain/landing_models.dart';
 import '../widgets/shared_widgets.dart';
 
 class ProjectsSection extends StatelessWidget {
@@ -22,6 +24,8 @@ class ProjectsSection extends StatelessWidget {
               subtitle: content.projectsSubtitle.of(content.language),
             ),
           ),
+          const SizedBox(height: 24),
+          _ShowcaseGrid(content: content),
           const SizedBox(height: 24),
           LayoutBuilder(
             builder: (context, constraints) {
@@ -60,6 +64,135 @@ class ProjectsSection extends StatelessWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ShowcaseGrid extends StatelessWidget {
+  const _ShowcaseGrid({required this.content});
+
+  final AppContent content;
+
+  Future<void> _downloadProfile() async {
+    final uri = Uri.base.resolve(
+      'assets/assets/documents/charter-company-profile.pdf',
+    );
+    await launchUrl(uri, mode: LaunchMode.platformDefault);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          content.showcaseTitle.of(content.language),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          content.showcaseSubtitle.of(content.language),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.muted, height: 1.6),
+        ),
+        const SizedBox(height: 18),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 1000
+                ? 3
+                : constraints.maxWidth >= 620
+                ? 2
+                : 1;
+            final spacing = 14.0;
+            final width =
+                (constraints.maxWidth - (spacing * (columns - 1))) / columns;
+            return Wrap(
+              spacing: spacing,
+              runSpacing: spacing,
+              children: content.deliveryShowcases
+                  .map(
+                    (item) => SizedBox(
+                      width: width,
+                      child: _ShowcaseCard(item: item, content: content),
+                    ),
+                  )
+                  .toList(),
+            );
+          },
+        ),
+        const SizedBox(height: 18),
+        OutlinedButton.icon(
+          onPressed: _downloadProfile,
+          icon: const Icon(Icons.picture_as_pdf_rounded),
+          label: Text(content.downloadProfileLabel.of(content.language)),
+        ),
+      ],
+    );
+  }
+}
+
+class _ShowcaseCard extends StatelessWidget {
+  const _ShowcaseCard({required this.item, required this.content});
+
+  final DeliveryShowcase item;
+  final AppContent content;
+
+  @override
+  Widget build(BuildContext context) {
+    return HoverCard(
+      child: SurfaceCard(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _IconBadge(icon: item.icon),
+            const SizedBox(height: 14),
+            Text(
+              item.title.of(content.language),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              item.summary.of(content.language),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.muted,
+                height: 1.55,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 7,
+              runSpacing: 7,
+              children: item.tags
+                  .map(
+                    (tag) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.gold.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        tag.of(content.language),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.obsidian,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        ),
       ),
     );
   }

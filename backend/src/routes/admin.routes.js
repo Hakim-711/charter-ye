@@ -37,6 +37,17 @@ const replaceLeadSchema = z.object({
   createdAtIso: z.string().datetime(),
   name: z.string().trim().min(1).max(120),
   company: z.string().trim().max(120).optional(),
+  phone: z.string().trim().max(30).optional().default(''),
+  email: z
+      .string()
+      .trim()
+      .max(180)
+      .refine(
+          (value) => value === '' || z.string().email().safeParse(value).success,
+          'Invalid email address.',
+      )
+      .optional()
+      .default(''),
   service: z.string().trim().min(1).max(120),
   message: z.string().trim().max(4000),
   status: z.enum(['newLead', 'contacted', 'closed']),
@@ -156,6 +167,8 @@ router.put('/leads', async (req, res) => {
           createdAt: new Date(lead.createdAtIso),
           name: lead.name,
           company: lead.company || null,
+          phone: lead.phone,
+          email: lead.email.toLowerCase(),
           service: lead.service,
           message: lead.message,
           status: lead.status,

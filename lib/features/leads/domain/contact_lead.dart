@@ -4,12 +4,16 @@ class ContactLeadDraft {
   const ContactLeadDraft({
     required this.name,
     required this.company,
+    required this.phone,
+    required this.email,
     required this.service,
     required this.message,
   });
 
   final String name;
   final String company;
+  final String phone;
+  final String email;
   final String service;
   final String message;
 }
@@ -20,6 +24,8 @@ class ContactLead {
     required this.createdAtIso,
     required this.name,
     required this.company,
+    required this.phone,
+    required this.email,
     required this.service,
     required this.message,
     required this.status,
@@ -29,6 +35,8 @@ class ContactLead {
   final String createdAtIso;
   final String name;
   final String company;
+  final String phone;
+  final String email;
   final String service;
   final String message;
   final LeadStatus status;
@@ -43,6 +51,8 @@ class ContactLead {
     String? createdAtIso,
     String? name,
     String? company,
+    String? phone,
+    String? email,
     String? service,
     String? message,
     LeadStatus? status,
@@ -52,6 +62,8 @@ class ContactLead {
       createdAtIso: createdAtIso ?? this.createdAtIso,
       name: name ?? this.name,
       company: company ?? this.company,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
       service: service ?? this.service,
       message: message ?? this.message,
       status: status ?? this.status,
@@ -64,6 +76,8 @@ class ContactLead {
       'createdAtIso': createdAtIso,
       'name': name,
       'company': company,
+      'phone': phone,
+      'email': email,
       'service': service,
       'message': message,
       'status': status.name,
@@ -77,6 +91,8 @@ class ContactLead {
       createdAtIso: (json['createdAtIso'] as String?) ?? '',
       name: (json['name'] as String?) ?? '',
       company: (json['company'] as String?) ?? '',
+      phone: (json['phone'] as String?) ?? '',
+      email: (json['email'] as String?) ?? '',
       service: (json['service'] as String?) ?? '',
       message: (json['message'] as String?) ?? '',
       status: LeadStatus.values.firstWhere(

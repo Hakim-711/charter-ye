@@ -393,6 +393,120 @@ class AppContent {
     en: 'We combine engineering delivery and operational supply within a growth model built on sustainability, technology, and long-term partnerships.',
   );
 
+  BilingualText get showcaseTitle => const BilingualText(
+    ar: 'نماذج نطاقات التنفيذ',
+    en: 'Representative Delivery Scope',
+  );
+
+  BilingualText get showcaseSubtitle => const BilingualText(
+    ar: 'مجالات تنفيذ موثقة ضمن الملفين التعريفيين للشركة، مع إمكانية تقديم سجل المشاريع والمراجع المعتمدة عند الطلب.',
+    en: 'Delivery areas documented in the company profiles. Approved project records and references are available upon request.',
+  );
+
+  List<DeliveryShowcase> get deliveryShowcases => const [
+    DeliveryShowcase(
+      title: BilingualText(
+        ar: 'المباني والأعمال المتكاملة',
+        en: 'Buildings & Integrated Works',
+      ),
+      summary: BilingualText(
+        ar: 'تنفيذ المباني من الحفر والأساسات والهيكل حتى التشطيبات والأعمال المعمارية والميكانيكية والكهربائية.',
+        en: 'Building delivery from excavation, foundations, and structure through finishes, architectural, mechanical, and electrical works.',
+      ),
+      icon: Icons.apartment_rounded,
+      tags: [
+        BilingualText(ar: 'إنشائي', en: 'Structural'),
+        BilingualText(ar: 'معماري', en: 'Architectural'),
+        BilingualText(ar: 'كهروميكانيك', en: 'MEP'),
+      ],
+    ),
+    DeliveryShowcase(
+      title: BilingualText(
+        ar: 'الطرق والمياه والبنية التحتية',
+        en: 'Roads, Water & Infrastructure',
+      ),
+      summary: BilingualText(
+        ar: 'طرق وجسور وسدود وحصاد مياه وآبار وخزانات وشبكات مياه وصرف وتأهيل مرافق عامة.',
+        en: 'Roads, bridges, dams, water harvesting, wells, tanks, water and sewer networks, and public-facility rehabilitation.',
+      ),
+      icon: Icons.add_road_rounded,
+      tags: [
+        BilingualText(ar: 'طرق', en: 'Roads'),
+        BilingualText(ar: 'مياه', en: 'Water'),
+        BilingualText(ar: 'تأهيل', en: 'Rehabilitation'),
+      ],
+    ),
+    DeliveryShowcase(
+      title: BilingualText(
+        ar: 'الطاقة والحلول الفنية',
+        en: 'Energy & Technical Systems',
+      ),
+      summary: BilingualText(
+        ar: 'أنظمة الطاقة الشمسية والكهرباء والتكييف ومكافحة الحريق والسباكة والصيانة والدعم الفني.',
+        en: 'Solar power, electrical, HVAC, fire protection, plumbing, maintenance, and technical support systems.',
+      ),
+      icon: Icons.solar_power_rounded,
+      tags: [
+        BilingualText(ar: 'طاقة شمسية', en: 'Solar'),
+        BilingualText(ar: 'سلامة', en: 'Safety'),
+        BilingualText(ar: 'صيانة', en: 'Maintenance'),
+      ],
+    ),
+    DeliveryShowcase(
+      title: BilingualText(
+        ar: 'الإمداد الإنساني والمؤسسي',
+        en: 'Humanitarian & Institutional Supply',
+      ),
+      summary: BilingualText(
+        ar: 'مواد الإيواء والغذاء والنظافة والتعليم والصحة والمياه والسلامة وفق حزم توريد قابلة للتخصيص.',
+        en: 'Shelter, food, hygiene, education, health, water, and safety items through configurable supply packages.',
+      ),
+      icon: Icons.inventory_2_rounded,
+      tags: [
+        BilingualText(ar: 'توريد', en: 'Supply'),
+        BilingualText(ar: 'إغاثة', en: 'Relief'),
+        BilingualText(ar: 'تعليم وصحة', en: 'Education & Health'),
+      ],
+    ),
+    DeliveryShowcase(
+      title: BilingualText(
+        ar: 'اللوجستيات والنقل والأساطيل',
+        en: 'Logistics, Transport & Fleet',
+      ),
+      summary: BilingualText(
+        ar: 'نقل وتأجير المركبات والمعدات الثقيلة وإدارة التوزيع والمخزون وقطع الغيار والزيوت والإطارات.',
+        en: 'Vehicle and heavy-equipment transport and rental, distribution, inventory, spare parts, oils, and tires.',
+      ),
+      icon: Icons.local_shipping_rounded,
+      tags: [
+        BilingualText(ar: 'نقل', en: 'Transport'),
+        BilingualText(ar: 'معدات', en: 'Equipment'),
+        BilingualText(ar: 'سلاسل إمداد', en: 'Supply Chain'),
+      ],
+    ),
+    DeliveryShowcase(
+      title: BilingualText(
+        ar: 'الزراعة والري والأمن الغذائي',
+        en: 'Agriculture, Irrigation & Food Security',
+      ),
+      summary: BilingualText(
+        ar: 'مدخلات ومعدات زراعية وأنظمة ري وثروة حيوانية ولحوم وحلول مياه وتحلية للمشاريع الميدانية.',
+        en: 'Agricultural inputs and equipment, irrigation, livestock, meat, water, and desalination solutions for field programs.',
+      ),
+      icon: Icons.agriculture_rounded,
+      tags: [
+        BilingualText(ar: 'زراعة', en: 'Agriculture'),
+        BilingualText(ar: 'ري', en: 'Irrigation'),
+        BilingualText(ar: 'أمن غذائي', en: 'Food Security'),
+      ],
+    ),
+  ];
+
+  BilingualText get downloadProfileLabel => const BilingualText(
+    ar: 'تحميل الملف التعريفي العام',
+    en: 'Download Public Company Profile',
+  );
+
   BilingualText get capabilitiesTitle => const BilingualText(
     ar: 'أهدافنا الاستراتيجية',
     en: 'Our Strategic Goals',
@@ -633,11 +747,15 @@ class AppContent {
       title: maribLabel,
       address: maribAddress,
       icon: Icons.location_city_rounded,
+      mapUrl:
+          'https://www.google.com/maps/search/?api=1&query=Al-Mujamma%20Marib%20Yemen',
     ),
     LocationItem(
       title: adenLabel,
       address: adenAddress,
       icon: Icons.apartment_rounded,
+      mapUrl:
+          'https://www.google.com/maps/search/?api=1&query=New%20Inma%20City%20Aden%20Yemen',
     ),
     LocationItem(
       title: coverageLabel,
@@ -717,6 +835,12 @@ class AppContent {
     en: 'Organization / Company',
   );
 
+  BilingualText get formHintPhone =>
+      const BilingualText(ar: 'رقم الهاتف', en: 'Phone number');
+
+  BilingualText get formHintEmail =>
+      const BilingualText(ar: 'البريد الإلكتروني', en: 'Email address');
+
   BilingualText get formHintService =>
       const BilingualText(ar: 'نوع الخدمة المطلوبة', en: 'Requested service');
 
@@ -742,6 +866,16 @@ class AppContent {
   BilingualText get formValidationTooLong =>
       const BilingualText(ar: 'النص طويل جدًا.', en: 'Input is too long.');
 
+  BilingualText get formValidationPhone => const BilingualText(
+    ar: 'أدخل رقم هاتف صحيحًا.',
+    en: 'Enter a valid phone number.',
+  );
+
+  BilingualText get formValidationEmail => const BilingualText(
+    ar: 'أدخل بريدًا إلكترونيًا صحيحًا.',
+    en: 'Enter a valid email address.',
+  );
+
   BilingualText get formRateLimitMessage => const BilingualText(
     ar: 'يرجى الانتظار قليلًا قبل إرسال طلب جديد.',
     en: 'Please wait a moment before submitting another request.',
@@ -752,9 +886,24 @@ class AppContent {
     en: 'Unable to submit now. Please try again.',
   );
 
+  BilingualText get formServiceUnavailable => const BilingualText(
+    ar: 'الإرسال الإلكتروني غير متاح مؤقتًا. يرجى استخدام البريد الإلكتروني أو واتساب أدناه.',
+    en: 'Online submission is temporarily unavailable. Please use email or WhatsApp below.',
+  );
+
   BilingualText get formSuccess => const BilingualText(
     ar: 'تم استلام طلبك بنجاح وسيتواصل معك فريقنا قريبًا.',
     en: 'Your request was received successfully. Our team will contact you shortly.',
+  );
+
+  BilingualText get privacyConsent => const BilingualText(
+    ar: 'أوافق على استخدام بياناتي للتواصل بخصوص هذا الطلب وفق سياسة الخصوصية.',
+    en: 'I agree to the use of my data to respond to this request under the privacy policy.',
+  );
+
+  BilingualText get privacyRequired => const BilingualText(
+    ar: 'يجب الموافقة على سياسة الخصوصية لإرسال الطلب.',
+    en: 'You must accept the privacy policy to submit the request.',
   );
 
   BilingualText get formOpenContactError => const BilingualText(

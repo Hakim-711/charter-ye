@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../data/app_content.dart';
@@ -104,6 +105,15 @@ class _LocationCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (location.mapUrl != null)
+              IconButton(
+                onPressed: () => launchUrl(
+                  Uri.parse(location.mapUrl!),
+                  mode: LaunchMode.externalApplication,
+                ),
+                tooltip: content.isArabic ? 'فتح الخريطة' : 'Open map',
+                icon: const Icon(Icons.map_outlined, color: AppColors.gold),
+              ),
           ],
         ),
       ),

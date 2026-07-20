@@ -57,6 +57,7 @@ void main() {
     );
     expect(find.text('قطاعات أعمالنا'), findsOneWidget);
     expect(find.text('القدرات والأهداف الاستراتيجية'), findsOneWidget);
+    expect(find.text('نماذج نطاقات التنفيذ'), findsOneWidget);
     expect(find.text('تشارتر للمقاولات العامة'), findsOneWidget);
     expect(find.text('تشارتر للخدمات العامة والتوريدات'), findsOneWidget);
   });

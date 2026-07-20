@@ -15,6 +15,7 @@ model AdminUser {
   isActive       Boolean  @default(true)
   failedAttempts Int      @default(0)
   lockoutUntil   DateTime?
+  tokenVersion   Int      @default(0)
   lastLoginAt    DateTime?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -49,6 +50,8 @@ model Lead {
   id        String     @id @default(cuid())
   name      String
   company   String?
+  phone     String
+  email     String
   service   String
   message   String
   status    String     @default("newLead")

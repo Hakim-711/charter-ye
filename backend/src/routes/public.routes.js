@@ -3,14 +3,18 @@ import { z } from 'zod';
 
 import { prisma } from '../config/prisma.js';
 import { mapLead, mapSettings } from '../utils/mappers.js';
+import { notifyNewLead } from '../services/lead-notification.js';
 
 const router = express.Router();
 
 const submitLeadSchema = z.object({
   name: z.string().trim().min(2).max(120),
   company: z.string().trim().max(120).optional(),
+  phone: z.string().trim().min(7).max(30),
+  email: z.string().trim().email().max(180),
   service: z.string().trim().min(2).max(120),
   message: z.string().trim().min(10).max(4000),
+  website: z.string().trim().max(0).optional(),
 });
 
 router.get('/settings', async (req, res) => {
@@ -37,10 +41,16 @@ router.post('/leads', async (req, res) => {
     data: {
       name: parsed.data.name,
       company: parsed.data.company || null,
+      phone: parsed.data.phone,
+      email: parsed.data.email.toLowerCase(),
       service: parsed.data.service,
       message: parsed.data.message,
       status: 'newLead',
     },
+  });
+
+  notifyNewLead(lead).catch((error) => {
+    console.error('[LEAD_NOTIFICATION_ERROR]', error);
   });
 
   return res.status(201).json({

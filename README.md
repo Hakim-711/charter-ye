@@ -7,6 +7,8 @@ Flutter Web project for Charter company website.
 - General Contracting: structural, architectural, infrastructure, rehabilitation, and electromechanical works.
 - General Services & Supplies: procurement, logistics, distribution, petroleum, transport/rental, commercial agencies, and technical support.
 - Detailed delivery portfolio, Marib and Aden locations, nationwide coverage, and contact request form.
+- Server-confirmed lead delivery with phone/email, privacy consent, optional SMTP notifications, and an admin inbox.
+- Public company profile PDF, legal pages, map links, sitemap, structured metadata, and optional privacy-friendly analytics.
 - Secure internal admin panel with backend authentication.
 - Modular codebase where each section is in its own file.
 
@@ -53,6 +55,7 @@ npm run dev
    - Publish directory: `build/web`
 4. If the backend is deployed, add this Netlify environment variable with **Builds** scope:
    - `CHARTER_API_BASE_URL=https://your-backend-domain`
+   - `PLAUSIBLE_DOMAIN=charter-ye.com` (optional; requires a configured Plausible site)
 5. Deploy the site. Every push to the production branch triggers a new build and deployment.
 
 Do not put `ADMIN_BOOTSTRAP_PASSCODE`, `ADMIN_ACCESS_KEY`, database credentials, or API secrets in a production Flutter web build. Values compiled with `--dart-define` are visible in the browser. Production admin authentication should use the backend.
@@ -64,8 +67,23 @@ Do not put `ADMIN_BOOTSTRAP_PASSCODE`, `ADMIN_ACCESS_KEY`, database credentials,
    - `ADMIN_DEFAULT_USERNAME`
    - `ADMIN_DEFAULT_PASSWORD`
    - `ALLOWED_ORIGINS` (include your Netlify domain)
+   - SMTP variables from `backend/.env.render.example` to receive new-lead email alerts
+   - Backup variables from `backend/.env.render.example`
 3. Set `CHARTER_API_BASE_URL` in Netlify and trigger a new deploy.
 4. Open admin from:
    - `/#/admin`
    - or `/?panel=admin`
 5. Log in with backend admin credentials (`ADMIN_DEFAULT_USERNAME` / `ADMIN_DEFAULT_PASSWORD`).
+
+## Validation
+```bash
+flutter analyze
+flutter test
+cd backend && npm test && npm audit --omit=dev
+```
+
+Regenerate the sanitized public profile with:
+```bash
+python3 -m pip install -r tool/requirements-pdf.txt
+python3 tool/generate_company_profile.py
+```
